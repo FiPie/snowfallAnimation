@@ -85,9 +85,9 @@ var quantity = 10;
 var repulsiveForce = 0;
 var forceActive = 0;
 var opacity = 0.3;
-var dxMin = -0.75;
+var dxMin = 0.25;
 var dxMax = 0.75;
-var dyMin = -0.1;
+var dyMin = 0.1;
 var dyMax = 0.5;
 var sizeMin = 1;
 var sizeMax = 7;
@@ -96,7 +96,7 @@ var animationActive;
 var snowfallIntervalRef;
 var snowfallActive = 0;
 var snowfallInterval = 600;
-var actionRange = 50;
+var actionRange = 150;
 
 
 // Event Listeners
@@ -140,9 +140,13 @@ window.addEventListener('wheel', function(event) {
 
 //pressing spacebar should start the snowfall
 window.addEventListener('keypress', function(event) {
+
   if (event.code === 'Space' && snowfallActive === 0) {
     snowfallIntervalRef = setInterval(function() {
       init(quantity);
+      if (!animationActive) {
+        animate();
+      }
     }, snowfallInterval);
     snowfallActive = 1;
     console.log('Spacebar pressed, snowfallActive:' + snowfallActive);
@@ -224,8 +228,20 @@ function Snowflake(id, x, y, dx, dy, radius, color, opacity) {
     }
     //we check if the snowflakes are withing the actionRange from the mouse cursor
     if (distance(mouse.x, mouse.y, this.x, this.y) < actionRange) {
-      this.dx -= repulsiveForce;
-      this.dy -= repulsiveForce;
+      if (this.x >= mouse.x && this.y >= mouse.y) {
+        this.dx += repulsiveForce;
+        this.dy += repulsiveForce;
+      } else if (this.x >= mouse.x && this.y < mouse.y) {
+        this.dx += repulsiveForce;
+        this.dy -= repulsiveForce;
+      } else if (this.x < mouse.x && this.y >= mouse.y) {
+        this.dx -= repulsiveForce;
+        this.dy += repulsiveForce;
+      } else if (this.x < mouse.x && this.y < mouse.y) {
+        this.dx -= repulsiveForce;
+        this.dy -= repulsiveForce;
+      }
+
       c.fillText("proximity alert!", mouse.x, mouse.y);
     }
 
