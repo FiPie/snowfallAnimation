@@ -9,6 +9,7 @@ var canvasBackGround = document.querySelector('#backGround');
 canvasBackGround.width = window.innerWidth;
 canvasBackGround.height = window.innerHeight;
 var ctx = canvasBackGround.getContext('2d');
+
 //var gradient = c.createLinearGradient(x0, y0, x1, y1);
 var gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
 gradient.addColorStop(0, '#515E75');
@@ -17,7 +18,6 @@ gradient.addColorStop(1, '#486DB5');
 ctx.fillStyle = gradient;
 ctx.globalAlpha = 0.8;
 ctx.fillRect(0, 0, canvas.width, canvas.height);
-
 
 
 var mouse = {
@@ -77,6 +77,7 @@ var colourArray = [
   ]
 ];
 
+//Set of variables affecting the behaviour of the animation
 var colourScheme = 7;
 var gravity = 0.01;
 var friction = 0.01;
@@ -104,6 +105,7 @@ window.addEventListener('mousemove', function(event) {
   mouse.y = event.y;
 });
 
+//animation will restart after window size changes
 window.addEventListener('resize', function() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -113,6 +115,7 @@ window.addEventListener('resize', function() {
   }
 });
 
+//activates one of interactions
 window.addEventListener('click', function() {
   if (forceActive === 0) {
     repulsiveForce = 1;
@@ -123,18 +126,16 @@ window.addEventListener('click', function() {
     repulsiveForce = 0;
     forceActive = 0;
   }
-
-
   if (!animationActive) {
     animate();
   }
 });
 
+//scrolling will increase the rate at which the snow is falling
 window.addEventListener('wheel', function(event) {
   if (quantity <= 1) {
     quantity++;
   } else quantity += event.deltaY;
-
 });
 
 //pressing spacebar should start the snowfall
@@ -143,23 +144,16 @@ window.addEventListener('keypress', function(event) {
     snowfallIntervalRef = setInterval(function() {
       init(quantity);
     }, snowfallInterval);
-    setTimeout(function() {
-      snowfallActive = 1;
-    }, 500);
-
+    snowfallActive = 1;
     console.log('Spacebar pressed, snowfallActive:' + snowfallActive);
-  }
-
-});
-//pressing spacebar again should stop the snowfall
-window.addEventListener('keypress', function(event) {
-  if (event.code === 'Space' && snowfallActive === 1) {
+  } else if (event.code === 'Space' && snowfallActive === 1) {
     clearInterval(snowfallIntervalRef);
     snowfallActive = 0;
-    console.log('Spacebar released, snowfallActive:' + snowfallActive);
+    console.log('Spacebar pressed, snowfallActive:' + snowfallActive);
   }
-
 });
+
+
 
 //useful functions
 function randomColor(colourArray, colourScheme) {
@@ -179,7 +173,7 @@ function distance(x1, y1, x2, y2) {
 
 
 //Objects
-function Ball(id, x, y, dx, dy, radius, color, opacity) {
+function Snowflake(id, x, y, dx, dy, radius, color, opacity) {
   this.id = id;
   this.x = x;
   this.y = y;
@@ -195,16 +189,16 @@ function Ball(id, x, y, dx, dy, radius, color, opacity) {
       // we're stoping this snowflake after it hits the bottom border of the canvas element
       this.dx = 0;
       this.dy = 0;
-      // if the ball is close to being invisible it will be removed from the array and won't be computed anymore
+      // if the snowflake is close to being invisible it will be removed from the array and won't be computed anymore
       if (this.radius - melting <= 0) {
-        var ballToRemove;
-        ballArray.forEach(ball => {
-          if (ball === this) {
-            ballToRemove = ballArray.indexOf(ball);
+        var snowflakeToRemove;
+        snowflakeArray.forEach(snowflake => {
+          if (snowflake === this) {
+            snowflakeToRemove = snowflakeArray.indexOf(snowflake);
           }
         });
 
-        ballArray.splice(ballToRemove, 1); // ball removed
+        snowflakeArray.splice(snowflakeToRemove, 1); // snowflake removed
         console.log('snowflake has melted :( ');
       } else {
         this.radius -= melting; //the snowflake will 'melt' when on the
@@ -228,13 +222,7 @@ function Ball(id, x, y, dx, dy, radius, color, opacity) {
       this.x += this.dx;
       this.y += this.dy;
     }
-    //we check if the circles are withing 50 px reach from the mouse cursor
-    // if (mouse.x - this.x < 50 && mouse.x - this.x > -50 &&
-    //   mouse.y - this.y < 50 && mouse.y - this.y > -50) {
-    //   this.dx -= repulsiveForce;
-    //   this.dy -= repulsiveForce;
-    //   //c.fillText("proximity alert!", mouse.x, mouse.y);
-    // }
+    //we check if the snowflakes are withing the actionRange from the mouse cursor
     if (distance(mouse.x, mouse.y, this.x, this.y) < actionRange) {
       this.dx -= repulsiveForce;
       this.dy -= repulsiveForce;
@@ -260,7 +248,7 @@ function Ball(id, x, y, dx, dy, radius, color, opacity) {
 
 
 //Implementation
-let ballArray = [];
+let snowflakeArray = [];
 
 function init(quantity) {
 
@@ -268,14 +256,14 @@ function init(quantity) {
     var id = i;
     var radius = randomIntFromRange(sizeMin, sizeMax); //spawning size
     var x = randomIntFromRange(radius, canvas.width - radius); //spawning horizontal position
-    var y = randomIntFromRange((6 * -radius), /*canvas.height -*/ radius); //spawning height
+    var y = randomIntFromRange((6 * -radius), radius); //spawning height
     var dx = randomIntFromRange(dxMin, dxMax); //spawning initial speed on x axis
     var dy = randomIntFromRange(dyMin, dyMax); //spawning initial speed on y axis
 
     var colour = randomColor(colourArray, colourScheme);
-    ballArray.push(new Ball(id, x, y, dx, dy, radius, colour, opacity));
+    snowflakeArray.push(new Snowflake(id, x, y, dx, dy, radius, colour, opacity));
   }
-  console.log(ballArray);
+  console.log(snowflakeArray);
 }
 
 //animation
@@ -283,18 +271,18 @@ function animate() {
   animationActive = true;
   // if array does not exist, is not an array, or is empty
   // ⇒ do not attempt to process array
-  if (!Array.isArray(ballArray) || !ballArray.length) {
+  if (!Array.isArray(snowflakeArray) || !snowflakeArray.length) {
     console.log('No more objects in the array');
     animationActive = false;
-    ballArray = [];
+    snowflakeArray = [];
     return false;
   }
   requestAnimationFrame(animate);
 
   c.clearRect(0, 0, canvas.width, canvas.height);
 
-  for (var i = 0; i < ballArray.length; i++) {
-    ballArray[i].update();
+  for (var i = 0; i < snowflakeArray.length; i++) {
+    snowflakeArray[i].update();
   }
 
 }
