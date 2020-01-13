@@ -247,7 +247,7 @@ function Snowflake(id, x, y, dx, dy, radius, color, opacity, maxSpeed) {
         this.dy -= repulsiveForce;
       }
 
-      c.fillText("proximity alert!", mouse.x, mouse.y);
+      c.fillText("click2Blow", mouse.x, mouse.y);
     }
 
     this.draw();
