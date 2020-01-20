@@ -7,3 +7,9 @@ You can preview this project [here](https://fipie.github.io/snowfallAnimation/)
 
 
 Have a beautful time! ;)
+
+
+<hr>
+<div text-align="center">
+<img src="./images/01.png" width="94%">
+<div>
