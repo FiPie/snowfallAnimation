@@ -11,5 +11,5 @@ Have a beautful time! ;)
 
 <hr>
 <div text-align="center">
-<img src="./images/01.png" width="94%">
+<img src="./images/01.png" width="100%">
 <div>
